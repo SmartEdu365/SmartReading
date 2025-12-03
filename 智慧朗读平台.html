@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧朗读平台 - 小学生版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .status-bar {
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .platform-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .current-time {
+            font-size: 20px;
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .feature-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border-radius: 20px;
+            padding: 25px 15px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .feature-btn:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+        }
+        
+        .feature-btn:active {
+            transform: translateY(-5px) scale(0.98);
+        }
+        
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.4;
+        }
+        
+        .bottom-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+        }
+        
+        .background-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .circle:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 5%;
+        }
+        
+        .circle:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            bottom: 15%;
+            right: 10%;
+        }
+        
+        .circle:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            left: 80%;
+        }
+        
+        .star {
+            position: absolute;
+            color: #FFD700;
+            font-size: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .star:nth-child(4) {
+            top: 20%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+        
+        .star:nth-child(5) {
+            top: 40%;
+            left: 80%;
+            animation-delay: 0.5s;
+        }
+        
+        .star:nth-child(6) {
+            top: 70%;
+            left: 15%;
+            animation-delay: 1s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .status-bar {
+                height: 50px;
+                padding: 0 20px;
+            }
+            
+            .platform-name {
+                font-size: 18px;
+            }
+            
+            .current-time {
+                font-size: 16px;
+            }
+            
+            .title {
+                font-size: 26px;
+            }
+            
+            .subtitle {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .feature-btn {
+                padding: 20px 10px;
+            }
+            
+            .feature-icon {
+                font-size: 40px;
+                height: 60px;
+            }
+            
+            .feature-title {
+                font-size: 16px;
+            }
+            
+            .feature-desc {
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <div class="platform-name">智慧朗读平台</div>
+        <div class="current-time" id="current-time">--:--</div>
+    </div>
+    
+    <div class="content">
+        <div class="logo">📚</div>
+        <div class="title">智慧朗读平台</div>
+        <div class="subtitle">专为小学生设计的朗读学习平台，让朗读变得更有趣！</div>
+        
+        <div class="features-grid">
+            <!-- 
+                注意：要修改跳转链接，请修改下面每个feature-btn元素的href属性值
+                例如：将href="#"改为您要跳转的实际网址
+            -->
+            
+            <!-- 范读欣赏按钮 -->
+            <a href="weixin://dl/business/?t=语文朗读小程序Ticket" class="feature-btn" id="fanread-btn">
+                <div class="feature-icon">🎭</div>
+                <div class="feature-title">范读欣赏</div>
+                <div class="feature-desc">听老师朗读示范，学习标准发音和语调</div>
+            </a>
+            
+            <!-- 配乐跟读按钮 -->
+            <a href="#" class="feature-btn" id="music-read-btn">
+                <div class="feature-icon">🎵</div>
+                <div class="feature-title">配乐跟读</div>
+                <div class="feature-desc">跟着音乐节奏朗读，让朗读更有韵律感</div>
+            </a>
+            
+            <!-- 量化朗读按钮 -->
+            <a href="#" class="feature-btn" id="quantify-read-btn">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">量化朗读</div>
+                <div class="feature-desc">系统评分，帮助改进发音、语速和流利度</div>
+            </a>
+            
+            <!-- 朗读比赛按钮 -->
+            <a href="#" class="feature-btn" id="competition-btn">
+                <div class="feature-icon">🏆</div>
+                <div class="feature-title">朗读比赛</div>
+                <div class="feature-desc">参与朗读比赛，展示你的朗读才能</div>
+            </a>
+            
+            <!-- 配音表演按钮 -->
+            <a href="#" class="feature-btn" id="dubbing-btn">
+                <div class="feature-icon">🎬</div>
+                <div class="feature-title">配音表演</div>
+                <div class="feature-desc">为动画片配音，体验配音演员的乐趣</div>
+            </a>
+            
+            <!-- 拓展朗读按钮 -->
+            <a href="#" class="feature-btn" id="expand-read-btn">
+                <div class="feature-icon">🚀</div>
+                <div class="feature-title">拓展朗读</div>
+                <div class="feature-desc">挑战更多有趣的文章和诗歌朗读</div>
+            </a>
+        </div>
+        
+        <div class="bottom-info">
+            <p>温馨提示：点击上面的按钮可以进入不同的朗读学习模块，开始你的朗读之旅吧！</p>
+        </div>
+    </div>
+    
+    <div class="background-elements">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="star">⭐</div>
+        <div class="star">⭐</div>
+        <div class="star">⭐</div>
+    </div>
+
+    <script>
+        // 更新时间函数
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+        }
+        
+        // 初始更新时间
+        updateTime();
+        
+        // 每秒更新一次时间
+        setInterval(updateTime, 1000);
+        
+        // 为每个功能按钮添加点击事件处理
+        // 注意：要修改跳转链接，可以直接修改上面HTML中href属性，这里提供备用方案
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有功能按钮
+            const featureButtons = document.querySelectorAll('.feature-btn');
+            
+            // 为每个按钮添加点击事件（备用方案，如果href属性未设置或需要特殊处理）
+            featureButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 获取按钮ID
+                    const buttonId = this.id;
+                    console.log(`点击了按钮: ${buttonId}`);
+                    
+                    // 这里可以添加特定按钮的额外处理逻辑
+                    // 例如：如果是范读欣赏按钮，可以添加动画效果等
+                    
+                    // 如果href属性是"#"，可以在这里阻止默认行为并执行其他操作
+                    if (this.getAttribute('href') === '#') {
+                        e.preventDefault(); // 阻止默认跳转
+                        
+                        // 根据按钮ID执行不同的操作
+                        switch(buttonId) {
+                            case 'fanread-btn':
+                                alert('即将进入范读欣赏模块...');
+                                // window.location.href = '你的范读欣赏页面链接';
+                                break;
+                            case 'music-read-btn':
+                                alert('即将进入配乐跟读模块...');
+                                // window.location.href = '你的配乐跟读页面链接';
+                                break;
+                            case 'quantify-read-btn':
+                                alert('即将进入量化朗读模块...');
+                                // window.location.href = '你的量化朗读页面链接';
+                                break;
+                            case 'competition-btn':
+                                alert('即将进入朗读比赛模块...');
+                                // window.location.href = '你的朗读比赛页面链接';
+                                break;
+                            case 'dubbing-btn':
+                                alert('即将进入配音表演模块...');
+                                // window.location.href = '你的配音表演页面链接';
+                                break;
+                            case 'expand-read-btn':
+                                alert('即将进入拓展朗读模块...');
+                                // window.location.href = '你的拓展朗读页面链接';
+                                break;
+                            default:
+                                alert('即将进入该模块...');
+                        }
+                    }
+                });
+            });
+            
+            // 添加鼠标悬停音效（可选）
+            featureButtons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    // 这里可以添加悬停音效或动画
+                    this.style.transform = 'translateY(-5px) scale(1.03)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+        
+        // 链接配置说明：
+        // 要修改跳转链接，有两种方式：
+        // 1. 直接修改HTML中每个feature-btn元素的href属性（推荐）
+        // 2. 在上面的JavaScript switch语句中取消注释并修改对应的window.location.href
+        
+        // 例如：
+        // 范读欣赏链接: https://example.com/fanread
+        // 配乐跟读链接: https://example.com/music-read
+        // 量化朗读链接: https://example.com/quantify-read
+        // 朗读比赛链接: https://example.com/competition
+        // 配音表演链接: https://example.com/dubbing
+        // 拓展朗读链接: https://example.com/expand-read
+    </script>
+</body>
+</html>
